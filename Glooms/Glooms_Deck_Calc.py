@@ -5,6 +5,8 @@ Created on Tue Apr 25 16:24:42 2017
 @author: nedd
 """
 import random
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Deck():
     def __init__(self, cards = []):
@@ -26,9 +28,9 @@ class Deck():
         
     @staticmethod
     def makeBaseCards():
-        values = [-2,-2,-1,-1,-1,0,0,0,0,1,1,1,2,2,0,0]
-        multiples = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,2]
-        reshuffle = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,True,True]
+        values = [0,0,0,0,0, 1,1,1,1,1,-1,-1,-1,-1,-1,-2,2, 0,0]
+        multiples = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,2]
+        reshuffle = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,True,True]
         cards = []
         for i in range(len(values)):
             cards.append(Card(values[i],multiple=multiples[i], reshuffle=reshuffle[i]))
@@ -98,6 +100,25 @@ class Deck():
         self.cleanUp(discards)
         return results
         
+    def basicTest(self, nreps=500):
+        results = []
+        for i in range(nreps):
+            r = self.doTurn().getResults()
+            results.append(r['value']* r['multiplier'])
+        return results
+        
+    @staticmethod
+    def basicAnalysis(results):
+        mean = np.mean(results)
+        median = np.median(results)
+        mode = np.mode(results)
+        maxv = max(results)
+        minv = min(results)
+        hist = plt.hist(results, bins = maxv-minv+1 )
+        return mean, median, mode, hist
+        
+        
+        
     
 class Card():
     def __init__(self, value, rolling = False, multiple = 1, modifiers = {}, reshuffle = False, remove = False):
@@ -112,21 +133,21 @@ class Card():
         output = ""
         output += str(self.value) + " "
         output += "x "+str(self.multiple) + " "
-        output += "rolling: " + self.rolling + " "
-        output += self.modifiers
+        output += "rolling: " + str(self.rolling) + " "
+        output += str(self.modifiers)
         return output
 
     def __str__(self):
         output = ""
         output += str(self.value) + " "
         output += "x "+str(self.multiple) + " "
-        output += "rolling: " + self.rolling + " "
-        output += self.modifiers
+        output += "rolling: " + str(self.rolling) + " "
+        output += str(self.modifiers)
         return output
     
     
 class Results():
-    def __init__(self, base_power=2, cards=[]):
+    def __init__(self, cards=[], base_power=2):
         self.cards = cards
         self.base_power = base_power
     def __gt__(self, other):
